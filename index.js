@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const sgMail = require('@sendgrid/mail');
@@ -23,6 +22,31 @@ app.post('/enviar-codigo', async (req, res) => {
   try {
     await sgMail.send(msg);
     res.status(200).send('Correo enviado correctamente');
+  } catch (error) {
+    console.error('Error al enviar:', error);
+    res.status(500).send('Error al enviar correo');
+  }
+});
+
+app.post('/enviar-correo-tutor', async (req, res) => {
+  const { correo, mensaje, datosEstudiante } = req.body;
+
+  const msg = {
+    to: correo,
+    from: process.env.EMAIL_FROM,
+    subject: 'Mensaje de estudiante asignado',
+    text: `
+${mensaje}
+
+Datos del estudiante:
+- Nombre: ${datosEstudiante.nombre}
+- Correo institucional: ${datosEstudiante.correo}
+    `,
+  };
+
+  try {
+    await sgMail.send(msg);
+    res.status(200).send('Correo enviado al tutor correctamente');
   } catch (error) {
     console.error('Error al enviar:', error);
     res.status(500).send('Error al enviar correo');
